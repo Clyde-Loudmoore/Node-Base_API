@@ -20,6 +20,7 @@ const config = {
     logging: Boolean(mainConfig.POSTGRES_DB_LOGGING),
   },
   port: mainConfig.SERVER_PORT,
+  currentUrl: mainConfig.CURRENT_URL,
 };
 
 export default config;

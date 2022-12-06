@@ -3,12 +3,18 @@ import express from 'express';
 import cors from 'cors';
 
 import dataSource from './db/dataSource';
-// import routes from './routes';
+import routes from './routes/index';
+import config from './config';
 
 const app = express();
 
+app.use(
+  cors({
+    origin: config.currentUrl,
+  })
+);
 app.use(express.json());
-app.use('api/users', cors());
+app.use('/api', routes);
 
 (async () => {
   try {
