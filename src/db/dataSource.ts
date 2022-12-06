@@ -2,7 +2,6 @@ import { DataSource } from 'typeorm';
 import path from 'path';
 
 import config from '../config';
-import { User } from './entities/User';
 
 const dataSource = new DataSource({
   type: 'postgres',
@@ -15,7 +14,7 @@ const dataSource = new DataSource({
   synchronize: false,
   subscribers: [],
   migrationsTableName: 'typeorm_migrations',
-  entities: [User],
+  entities: [path.normalize(`${__dirname}/entities/**/*.{ts,js}`)],
   migrations: [path.normalize(`${__dirname}/migrations/*.{ts,js}`)],
 });
 
