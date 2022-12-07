@@ -21,6 +21,10 @@ const config = {
   },
   port: mainConfig.SERVER_PORT,
   currentUrl: mainConfig.CURRENT_URL,
+  token: {
+    secretKey: mainConfig.TOKEN_SECRET,
+    expiresIn: mainConfig.TOKEN_AUTH_EXPIRATION,
+  },
 };
 
 export default config;
