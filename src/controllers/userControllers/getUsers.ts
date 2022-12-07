@@ -1,7 +1,8 @@
+/* eslint-disable no-console */
 import type { RequestHandler } from 'express';
 
-import { User } from '../db/entities/User';
-import db from '../db/index';
+import type { User } from '../../db/entities/User';
+import db from '../../db/index';
 
 type ResponseType = User[];
 type HandlerType = RequestHandler<ResponseType>;

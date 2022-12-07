@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/comma-dangle */
 /* eslint-disable no-console */
 import express from 'express';
 import cors from 'cors';

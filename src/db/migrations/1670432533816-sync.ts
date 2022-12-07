@@ -1,10 +1,10 @@
-import { MigrationInterface, QueryRunner } from 'typeorm';
+import { MigrationInterface, QueryRunner } from "typeorm";
 
-export class sync1670315089334 implements MigrationInterface {
-  name = 'sync1670315089334';
+export class sync1670432533816 implements MigrationInterface {
+    name = 'sync1670432533816'
 
-  public async up(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`
+    public async up(queryRunner: QueryRunner): Promise<void> {
+        await queryRunner.query(`
             CREATE TABLE "user" (
                 "id" SERIAL NOT NULL,
                 "fullName" character varying NOT NULL,
@@ -14,11 +14,12 @@ export class sync1670315089334 implements MigrationInterface {
                 CONSTRAINT "PK_cace4a159ff9f2512dd42373760" PRIMARY KEY ("id")
             )
         `);
-  }
+    }
 
-  public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`
+    public async down(queryRunner: QueryRunner): Promise<void> {
+        await queryRunner.query(`
             DROP TABLE "user"
         `);
-  }
+    }
+
 }

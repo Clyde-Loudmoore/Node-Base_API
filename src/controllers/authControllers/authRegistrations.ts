@@ -1,7 +1,9 @@
+/* eslint-disable no-console */
 import type { RequestHandler } from 'express';
+import bcrypt from 'bcryptjs';
 
-import { User } from '../db/entities/User';
-import db from '../db/index';
+import { User } from '../../db/entities/User';
+import db from '../../db/index';
 
 type ParamsType = Record<string, never>;
 type ResponseType = User;
@@ -20,20 +22,26 @@ type HandlerType = RequestHandler<
   QueryType
 >;
 
-export const addUser: HandlerType = async (req, res) => {
+export const register: HandlerType = async (req, res) => {
   try {
     const { fullName, email, password, dateOfBirth } = req.body;
 
+    const candidate = await db.user.findOneBy({ fullName });
+    if (candidate) {
+      return res.sendStatus(400);
+    }
+
+    const hashPassword = bcrypt.hashSync(password, 8);
     const user = new User();
     user.fullName = fullName;
     user.email = email;
-    user.password = password;
+    user.password = hashPassword;
     user.dateOfBirth = dateOfBirth;
     await db.user.save(user);
 
-    return res.json(user);
+    res.json(user);
   } catch (err) {
     console.log(err);
-    res.sendStatus(404);
+    return res.sendStatus(400);
   }
 };
