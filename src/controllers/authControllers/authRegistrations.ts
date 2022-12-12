@@ -1,13 +1,15 @@
 /* eslint-disable no-console */
 import type { RequestHandler } from 'express';
-import bcrypt from 'bcryptjs';
+import { StatusCodes } from 'http-status-codes';
 
 import User from '../../db/entities/User';
 import type UserType from '../../db/entities/User';
 import db from '../../db/index';
 import { generateAccessToken } from '../../utils/generateToken';
-import config from '../../config';
 import hashedPassword from '../../utils/hashedPassword';
+import errorsMessage from '../../utils/errorsMessage';
+import { customError } from '../../utils/createCustomError';
+import successMessage from '../../utils/successMessage';
 
 type ParamsType = Record<string, never>;
 type BodyType = UserType;
@@ -27,9 +29,7 @@ export const register: HandlerType = async (req, res, next) => {
       where: { email: req.body.email },
     });
     if (candidate) {
-      return res
-        .status(400)
-        .json({ message: 'User with this email already exists' });
+      throw customError(StatusCodes.BAD_REQUEST, errorsMessage.EMAIL_USED);
     }
 
     const hashPassword = await hashedPassword.hashedPass(req.body.password);
@@ -45,9 +45,10 @@ export const register: HandlerType = async (req, res, next) => {
 
     const token = generateAccessToken(user.id);
 
-    res.status(200).json({
+    res.json({
       user: newUser,
       token,
+      message: successMessage.REGISTRATION_SUCCESS,
     });
   } catch (err) {
     next(err);

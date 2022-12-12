@@ -3,7 +3,7 @@ import express from 'express';
 import createValidationMiddleware from '../middlewares/applyValidationScheme';
 import user from '../validationSchemes/user';
 import userControllers from '../controllers/userControllers';
-import verifyAuthorization from '../utils/validateToken';
+import verifyAuthorization from '../middlewares/verifyToken';
 
 const routes = express.Router();
 

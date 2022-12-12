@@ -1,9 +1,8 @@
-/* eslint-disable @typescript-eslint/comma-dangle */
-/* eslint-disable no-console */
 import express from 'express';
 import cors from 'cors';
 
-import dataSource from './db/dataSource';
+import { errorsHandler } from './middlewares/errorsHandler';
+
 import routes from './routes';
 import config from './config';
 import './types/express/index';
@@ -12,19 +11,11 @@ const app = express();
 
 app.use(
   cors({
-    origin: config.currentUrl,
+    origin: [config.currentUrl],
   })
 );
 app.use(express.json());
-
 app.use('/api', routes);
-
-(async () => {
-  try {
-    await dataSource.initialize();
-  } catch (err) {
-    return console.log(err);
-  }
-})();
+app.use(errorsHandler);
 
 export default app;

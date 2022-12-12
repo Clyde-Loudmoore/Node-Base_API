@@ -1,7 +1,11 @@
 /* eslint-disable no-console */
 import type { RequestHandler } from 'express';
+import { StatusCodes } from 'http-status-codes';
 
 import db from '../../db/index';
+import successMessage from '../../utils/successMessage';
+import { customError } from '../../utils/createCustomError';
+import errorsMessage from '../../utils/errorsMessage';
 
 type ParamsType = Record<string, never>;
 type BodyType = Record<string, never>;
@@ -17,18 +21,17 @@ type HandlerType = RequestHandler<
   QueryType
 >;
 
-export const deleteUser: HandlerType = async (req, res) => {
+export const deleteUser: HandlerType = async (req, res, next) => {
   try {
     const user = await db.user.findOne({ where: { id: req.user.id } });
 
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      throw customError(StatusCodes.NOT_FOUND, errorsMessage.USER_NOT_FOUND);
     }
 
     await db.user.remove(user);
-    res.status(204).json({ message: 'The user has been deleted' });
+    res.json({ message: successMessage.DELETED_USER });
   } catch (err) {
-    console.log(err);
-    res.status(404).json({ message: 'try the request later' });
+    next(err);
   }
 };

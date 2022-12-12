@@ -1,10 +1,13 @@
 /* eslint-disable no-console */
 import type { RequestHandler } from 'express';
-import bcrypt from 'bcryptjs';
+import { StatusCodes } from 'http-status-codes';
 
 import type UserType from '../../db/entities/User';
 import db from '../../db/index';
 import hashedPassword from '../../utils/hashedPassword';
+import { customError } from '../../utils/createCustomError';
+import errorsMessage from '../../utils/errorsMessage';
+import successMessage from '../../utils/successMessage';
 
 type ParamsType = Record<string, never>;
 type QueryType = Record<string, never>;
@@ -29,6 +32,10 @@ export const editUserPass: HandlerType = async (req, res) => {
       .where('email = :email', { email: req.body.email })
       .getOne();
 
+    if (!existingUser) {
+      throw customError(StatusCodes.NOT_FOUND, errorsMessage.USER_NOT_FOUND);
+    }
+
     const matchPassword = await hashedPassword.comparePass(
       req.body.password,
       existingUser.password
@@ -38,19 +45,11 @@ export const editUserPass: HandlerType = async (req, res) => {
       const newPassword = hashedPassword.hashedPass(req.body.password);
       existingUser.password = (await newPassword).toString();
     } else {
-      return res.status(400).json({ message: 'Enter a new password' });
+      throw customError(StatusCodes.BAD_REQUEST, errorsMessage.WRONG_PASS);
     }
     await db.user.save(existingUser);
 
-    if (!existingUser) {
-      return res.status(404).json({
-        message: 'The user`s password cannot be updated',
-      });
-    }
-
-    res
-      .status(200)
-      .json({ message: 'The user`s password has been successfully updated' });
+    res.json({ message: successMessage.UPDATE_USER_PASSWORD });
   } catch (err) {
     console.log(err);
     res.sendStatus(404);

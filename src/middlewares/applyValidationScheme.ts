@@ -1,10 +1,18 @@
 import type { Handler } from 'express';
-import type * as yup from 'yup';
+import * as yup from 'yup';
 import type { OptionalObjectSchema } from 'yup/lib/object';
+import { StatusCodes } from 'http-status-codes';
+
+import { customError } from '../utils/createCustomError';
+import errorsMessage from '../utils/errorsMessage';
 
 type UserSchemaType = OptionalObjectSchema<ValidationType>;
 export type ShapeFieldType = {
-  [key: string]: yup.StringSchema | yup.NumberSchema | yup.DateSchema | yup.BooleanSchema;
+  [key: string]:
+    | yup.StringSchema
+    | yup.NumberSchema
+    | yup.DateSchema
+    | yup.BooleanSchema;
 };
 export type ValidationType = {
   body?: OptionalObjectSchema<ShapeFieldType>;
@@ -13,7 +21,7 @@ export type ValidationType = {
 };
 
 export const createValidationMiddleware = (schema: UserSchemaType): Handler => {
-  return async (req, res, next) => {
+  return async (req, _, next) => {
     try {
       await schema.validate({
         body: req.body,
@@ -21,8 +29,12 @@ export const createValidationMiddleware = (schema: UserSchemaType): Handler => {
         params: req.params,
       });
       next();
-    } catch (error) {
-      res.status(400).json(error);
+    } catch (err) {
+      if (err instanceof yup.ValidationError) {
+        return next(
+          customError(StatusCodes.BAD_REQUEST, errorsMessage.INCORRECT_DATA)
+        );
+      }
     }
   };
 };

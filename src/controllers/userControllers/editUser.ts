@@ -1,8 +1,12 @@
 /* eslint-disable no-console */
 import type { RequestHandler } from 'express';
+import { StatusCodes } from 'http-status-codes';
 
 import type UserType from '../../db/entities/User';
 import db from '../../db/index';
+import { customError } from '../../utils/createCustomError';
+import errorsMessage from '../../utils/errorsMessage';
+import successMessage from '../../utils/successMessage';
 
 type ParamsType = Record<string, never>;
 type QueryType = Record<string, never>;
@@ -30,9 +34,7 @@ export const editUser: HandlerType = async (req, res, next) => {
     const user = await db.user.findOne({ where: { id: req.user.id } });
 
     if (!user) {
-      return res
-        .status(404)
-        .json({ message: 'User not found', enteredData: req.body });
+      throw customError(StatusCodes.NOT_FOUND, errorsMessage.USER_NOT_FOUND);
     }
 
     user.fullName = fullName;
@@ -40,7 +42,7 @@ export const editUser: HandlerType = async (req, res, next) => {
     user.dateOfBirth = dateOfBirth;
 
     await db.user.save(user);
-    return res.status(200).json({ message: 'data succesfully updated' });
+    return res.json({ message: successMessage.UPDATE_USER });
   } catch (err) {
     next(err);
   }
