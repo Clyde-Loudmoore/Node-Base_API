@@ -1,19 +1,21 @@
 /* eslint-disable no-console */
 import type { RequestHandler } from 'express';
 
-import type { User } from '../../db/entities/User';
+import type UserType from '../../db/entities/User';
 import db from '../../db/index';
 
 type ParamsType = Record<string, never>;
-type ResponseType = User;
+type QueryType = Record<string, never>;
+type ResponseType = {
+  message: string;
+  enteredData?: BodyType;
+  userInfo?: UserType;
+};
 type BodyType = {
-  id: number;
   fullName: string;
   email: string;
-  password: string;
   dateOfBirth: Date;
 };
-type QueryType = Record<string, never>;
 
 type HandlerType = RequestHandler<
   ParamsType,
@@ -22,19 +24,24 @@ type HandlerType = RequestHandler<
   QueryType
 >;
 
-export const editUser: HandlerType = async (req, res) => {
+export const editUser: HandlerType = async (req, res, next) => {
   try {
-    const { id, fullName, email, password, dateOfBirth } = req.body;
-    const user = await db.user.findOneBy({ id });
+    const { fullName, email, dateOfBirth } = req.body;
+    const user = await db.user.findOne({ where: { id: req.user.id } });
+
+    if (!user) {
+      return res
+        .status(404)
+        .json({ message: 'User not found', enteredData: req.body });
+    }
+
     user.fullName = fullName;
     user.email = email;
-    user.password = password;
     user.dateOfBirth = dateOfBirth;
 
     await db.user.save(user);
-    return res.json(user);
+    return res.status(200).json({ message: 'data succesfully updated' });
   } catch (err) {
-    console.log(err);
-    res.sendStatus(404);
+    next(err);
   }
 };

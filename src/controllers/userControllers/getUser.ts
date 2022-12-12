@@ -1,15 +1,15 @@
 /* eslint-disable no-console */
 import type { RequestHandler } from 'express';
 
-import type { User } from '../../db/entities/User';
+import type User from '../../db/entities/User';
 import db from '../../db/index';
 
 type ResponseType = User[];
 type HandlerType = RequestHandler<ResponseType>;
 
-export const getUsers: HandlerType = async (_, res) => {
+export const getUser: HandlerType = async (req, res) => {
   try {
-    const users = await db.user.find();
+    const users = await db.user.findOne({ where: { id: req.user.id } });
 
     return res.json(users);
   } catch (err) {

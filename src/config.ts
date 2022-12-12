@@ -17,13 +17,17 @@ const config = {
     user: mainConfig.POSTGRES_DB_USER,
     password: mainConfig.POSTGRES_DB_PASSWORD,
     database: mainConfig.POSTGRES_DB_NAME,
-    logging: Boolean(mainConfig.POSTGRES_DB_LOGGING),
+    logging: mainConfig.POSTGRES_DB_LOGGING === 'true',
   },
   port: mainConfig.SERVER_PORT,
   currentUrl: mainConfig.CURRENT_URL,
   token: {
     secretKey: mainConfig.TOKEN_SECRET,
     expiresIn: mainConfig.TOKEN_AUTH_EXPIRATION,
+  },
+  password: {
+    salt: mainConfig.PASSWORD_HASH_SALT,
+    type: mainConfig.PASSWORD_HASH_TYPE,
   },
 };
 

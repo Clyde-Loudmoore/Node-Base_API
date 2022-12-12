@@ -6,5 +6,7 @@ export const generateAccessToken = (id: number) => {
   const payload = {
     id,
   };
-  return jwt.sign(payload, config.token.secretKey, { expiresIn: '1h' });
+  return jwt.sign(payload, config.token.secretKey, {
+    expiresIn: config.token.expiresIn,
+  });
 };

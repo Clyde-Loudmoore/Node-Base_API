@@ -4,8 +4,9 @@ import express from 'express';
 import cors from 'cors';
 
 import dataSource from './db/dataSource';
-import routes from './routes/index';
+import routes from './routes';
 import config from './config';
+import './types/express/index';
 
 const app = express();
 
@@ -15,6 +16,7 @@ app.use(
   })
 );
 app.use(express.json());
+
 app.use('/api', routes);
 
 (async () => {

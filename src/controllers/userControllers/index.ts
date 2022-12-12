@@ -1,6 +1,11 @@
-import { getUsers } from './getUsers';
-import { addUser } from './addUser';
+import { getUser } from './getUser';
 import { editUser } from './editUser';
+import { editUserPass } from './editUserPass';
 import { deleteUser } from './deleteUser';
 
-export default { getUsers, addUser, editUser, deleteUser };
+export default {
+  getUser,
+  editUser,
+  editUserPass,
+  deleteUser,
+};

@@ -1,43 +1,38 @@
 /* eslint-disable no-console */
-import type { RequestHandler } from 'express';
-import bcrypt from 'bcryptjs';
+import type { Handler } from 'express';
 
-import type { User } from '../../db/entities/User';
 import db from '../../db/index';
 import { generateAccessToken } from '../../utils/generateToken';
+import hashedPassword from '../../utils/hashedPassword';
 
-type ParamsType = Record<string, never>;
-type ResponseType = { user: User; token: string };
-type BodyType = {
-  email: string;
-  password: string;
-};
-type QueryType = Record<string, never>;
-
-type HandlerType = RequestHandler<
-  ParamsType,
-  ResponseType,
-  BodyType,
-  QueryType
->;
-
-export const login: HandlerType = async (req, res) => {
+export const login: Handler = async (req, res, next) => {
   try {
-    const { email, password } = req.body;
-    const user = await db.user.findOneBy({ email });
-    if (!user) {
+    const existingUser = await db.user
+      .createQueryBuilder('user')
+      .addSelect('user.password')
+      .where('email = :email', { email: req.body.email })
+      .getOne();
+
+    const matchPassword = await hashedPassword.comparePass(
+      req.body.password,
+      existingUser.password
+    );
+
+    if (!matchPassword) {
       return res.sendStatus(404);
     }
 
-    const validPassword = bcrypt.compareSync(password, user.password);
-    if (!validPassword) {
-      return res.sendStatus(404);
-    }
+    const token = generateAccessToken(existingUser.id);
 
-    const token = generateAccessToken(user.id);
-    return res.json({ user, token });
+    const userData = {
+      id: existingUser.id,
+      fullName: existingUser.fullName,
+      email: existingUser.email,
+      dateOfBirth: existingUser.dateOfBirth,
+    };
+
+    return res.status(200).json({ userData, token });
   } catch (err) {
-    console.log(err);
-    res.status(400);
+    next(err);
   }
 };

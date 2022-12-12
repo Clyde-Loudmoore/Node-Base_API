@@ -2,18 +2,17 @@
 import type { RequestHandler } from 'express';
 import bcrypt from 'bcryptjs';
 
-import { User } from '../../db/entities/User';
+import User from '../../db/entities/User';
+import type UserType from '../../db/entities/User';
 import db from '../../db/index';
+import { generateAccessToken } from '../../utils/generateToken';
+import config from '../../config';
+import hashedPassword from '../../utils/hashedPassword';
 
 type ParamsType = Record<string, never>;
-type ResponseType = User;
-type BodyType = {
-  fullName: string;
-  email: string;
-  password: string;
-  dateOfBirth: Date;
-};
+type BodyType = UserType;
 type QueryType = Record<string, never>;
+type ResponseType = { message?: string; user?: UserType; token?: string };
 
 type HandlerType = RequestHandler<
   ParamsType,
@@ -22,26 +21,35 @@ type HandlerType = RequestHandler<
   QueryType
 >;
 
-export const register: HandlerType = async (req, res) => {
+export const register: HandlerType = async (req, res, next) => {
   try {
-    const { fullName, email, password, dateOfBirth } = req.body;
-
-    const candidate = await db.user.findOneBy({ fullName });
+    const candidate = await db.user.findOne({
+      where: { email: req.body.email },
+    });
     if (candidate) {
-      return res.sendStatus(400);
+      return res
+        .status(400)
+        .json({ message: 'User with this email already exists' });
     }
 
-    const hashPassword = bcrypt.hashSync(password, 8);
-    const user = new User();
-    user.fullName = fullName;
-    user.email = email;
-    user.password = hashPassword;
-    user.dateOfBirth = dateOfBirth;
-    await db.user.save(user);
+    const hashPassword = await hashedPassword.hashedPass(req.body.password);
 
-    res.json(user);
+    const user = new User();
+    user.fullName = req.body.fullName;
+    user.email = req.body.email;
+    user.password = hashPassword;
+    user.dateOfBirth = new Date(req.body.dateOfBirth);
+
+    const newUser = await db.user.save(user);
+    delete newUser.password;
+
+    const token = generateAccessToken(user.id);
+
+    res.status(200).json({
+      user: newUser,
+      token,
+    });
   } catch (err) {
-    console.log(err);
-    return res.sendStatus(400);
+    next(err);
   }
 };

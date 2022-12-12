@@ -1,15 +1,14 @@
 /* eslint-disable no-console */
 import type { RequestHandler } from 'express';
 
-import type { User } from '../../db/entities/User';
 import db from '../../db/index';
 
 type ParamsType = Record<string, never>;
-type ResponseType = User;
-type BodyType = {
-  id: number;
-};
+type BodyType = Record<string, never>;
 type QueryType = Record<string, never>;
+type ResponseType = {
+  message: string;
+};
 
 type HandlerType = RequestHandler<
   ParamsType,
@@ -20,14 +19,16 @@ type HandlerType = RequestHandler<
 
 export const deleteUser: HandlerType = async (req, res) => {
   try {
-    const { id } = req.body;
-    const user = await db.user.findOneBy({ id });
-    console.log(user);
+    const user = await db.user.findOne({ where: { id: req.user.id } });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
 
     await db.user.remove(user);
-    res.sendStatus(204);
+    res.status(204).json({ message: 'The user has been deleted' });
   } catch (err) {
     console.log(err);
-    res.sendStatus(404);
+    res.status(404).json({ message: 'try the request later' });
   }
 };
