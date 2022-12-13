@@ -4,7 +4,6 @@ import { StatusCodes } from 'http-status-codes';
 
 import type UserType from '../../db/entities/User';
 import db from '../../db/index';
-import { customError } from '../../utils/createCustomError';
 import errorsMessage from '../../utils/errorsMessage';
 import successMessage from '../../utils/successMessage';
 
@@ -34,7 +33,9 @@ export const editUser: HandlerType = async (req, res, next) => {
     const user = await db.user.findOne({ where: { id: req.user.id } });
 
     if (!user) {
-      throw customError(StatusCodes.NOT_FOUND, errorsMessage.USER_NOT_FOUND);
+      res
+        .status(StatusCodes.NOT_FOUND)
+        .json({ message: errorsMessage.USER_NOT_FOUND });
     }
 
     user.fullName = fullName;

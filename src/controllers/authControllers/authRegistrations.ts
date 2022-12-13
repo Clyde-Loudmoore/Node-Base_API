@@ -8,7 +8,6 @@ import db from '../../db/index';
 import { generateAccessToken } from '../../utils/generateToken';
 import hashedPassword from '../../utils/hashedPassword';
 import errorsMessage from '../../utils/errorsMessage';
-import { customError } from '../../utils/createCustomError';
 import successMessage from '../../utils/successMessage';
 
 type ParamsType = Record<string, never>;
@@ -29,7 +28,9 @@ export const register: HandlerType = async (req, res, next) => {
       where: { email: req.body.email },
     });
     if (candidate) {
-      throw customError(StatusCodes.BAD_REQUEST, errorsMessage.EMAIL_USED);
+      throw res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ message: errorsMessage.EMAIL_USED });
     }
 
     const hashPassword = await hashedPassword.hashedPass(req.body.password);

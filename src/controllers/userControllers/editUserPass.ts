@@ -5,7 +5,6 @@ import { StatusCodes } from 'http-status-codes';
 import type UserType from '../../db/entities/User';
 import db from '../../db/index';
 import hashedPassword from '../../utils/hashedPassword';
-import { customError } from '../../utils/createCustomError';
 import errorsMessage from '../../utils/errorsMessage';
 import successMessage from '../../utils/successMessage';
 
@@ -24,7 +23,7 @@ type HandlerType = RequestHandler<
   QueryType
 >;
 
-export const editUserPass: HandlerType = async (req, res) => {
+export const editUserPass: HandlerType = async (req, res, next) => {
   try {
     const existingUser = await db.user
       .createQueryBuilder('user')
@@ -33,7 +32,9 @@ export const editUserPass: HandlerType = async (req, res) => {
       .getOne();
 
     if (!existingUser) {
-      throw customError(StatusCodes.NOT_FOUND, errorsMessage.USER_NOT_FOUND);
+      res
+        .status(StatusCodes.NOT_FOUND)
+        .json({ message: errorsMessage.USER_NOT_FOUND });
     }
 
     const matchPassword = await hashedPassword.comparePass(
@@ -45,13 +46,14 @@ export const editUserPass: HandlerType = async (req, res) => {
       const newPassword = hashedPassword.hashedPass(req.body.password);
       existingUser.password = (await newPassword).toString();
     } else {
-      throw customError(StatusCodes.BAD_REQUEST, errorsMessage.WRONG_PASS);
+      res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ message: errorsMessage.WRONG_PASS });
     }
     await db.user.save(existingUser);
 
     res.json({ message: successMessage.UPDATE_USER_PASSWORD });
   } catch (err) {
-    console.log(err);
-    res.sendStatus(404);
+    next(err);
   }
 };

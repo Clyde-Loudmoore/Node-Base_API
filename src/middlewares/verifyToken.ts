@@ -4,7 +4,6 @@ import { StatusCodes } from 'http-status-codes';
 
 import config from '../config';
 import db from '../db';
-import { customError } from '../utils/createCustomError';
 import errorsMessage from '../utils/errorsMessage';
 
 const verifyAuthorization = async (
@@ -17,7 +16,9 @@ const verifyAuthorization = async (
     const token = req.headers.authorization.split(' ')[1];
 
     if (!token) {
-      throw customError(StatusCodes.UNAUTHORIZED, errorsMessage.NOT_AUTHORIZED);
+      res
+        .status(StatusCodes.UNAUTHORIZED)
+        .json({ message: errorsMessage.NOT_AUTHORIZED });
     }
 
     verifiedToken = jwt.verify(token, config.token.secretKey) as {
@@ -31,9 +32,9 @@ const verifyAuthorization = async (
     next();
   } catch (err) {
     if (err instanceof jwt.JsonWebTokenError) {
-      return next(
-        customError(StatusCodes.UNAUTHORIZED, errorsMessage.INVALID_TOKEN)
-      );
+      res
+        .status(StatusCodes.UNAUTHORIZED)
+        .json({ message: errorsMessage.INVALID_TOKEN });
     }
     next(err);
   }

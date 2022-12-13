@@ -1,42 +1,40 @@
-import type { Handler } from 'express';
 import * as yup from 'yup';
-import type { OptionalObjectSchema } from 'yup/lib/object';
-import { StatusCodes } from 'http-status-codes';
+import { Handler } from 'express';
 
-import { customError } from '../utils/createCustomError';
-import errorsMessage from '../utils/errorsMessage';
-
-type UserSchemaType = OptionalObjectSchema<ValidationType>;
-export type ShapeFieldType = {
+type ShapeFieldType = {
   [key: string]:
     | yup.StringSchema
     | yup.NumberSchema
-    | yup.DateSchema
-    | yup.BooleanSchema;
-};
-export type ValidationType = {
-  body?: OptionalObjectSchema<ShapeFieldType>;
-  query?: OptionalObjectSchema<ShapeFieldType>;
-  params?: OptionalObjectSchema<ShapeFieldType>;
+    | yup.BooleanSchema
+    | yup.DateSchema;
 };
 
-export const createValidationMiddleware = (schema: UserSchemaType): Handler => {
-  return async (req, _, next) => {
+type SchemaType = {
+  body?: ShapeFieldType;
+  query?: ShapeFieldType;
+  params?: ShapeFieldType;
+};
+
+const createValidationMiddleware = (schema: SchemaType) => {
+  const ValidationMiddleware: Handler = async (req, res, next) => {
     try {
-      await schema.validate({
-        body: req.body,
-        query: req.query,
-        params: req.params,
+      const rootShape: Record<string, yup.AnyObjectSchema> = {};
+      Object.entries(schema).forEach(([key, value]) => {
+        rootShape[key] = yup.object().shape(value);
       });
+      const yupSchema = yup.object().shape(rootShape);
+
+      await yupSchema.validate(req);
+
       next();
     } catch (err) {
-      if (err instanceof yup.ValidationError) {
-        return next(
-          customError(StatusCodes.BAD_REQUEST, errorsMessage.INCORRECT_DATA)
-        );
+      if (err) {
+        next(res.json({ message: err.message }));
       }
+      next(err);
     }
   };
+  return ValidationMiddleware;
 };
 
 export default createValidationMiddleware;
