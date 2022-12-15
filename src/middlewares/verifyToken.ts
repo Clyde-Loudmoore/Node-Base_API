@@ -1,40 +1,37 @@
 import type { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
 import { StatusCodes } from 'http-status-codes';
 
-import config from '../config';
 import db from '../db';
+import generateToken from '../utils/generateToken';
 import errorsMessage from '../utils/errorsMessages';
+import CustomError from '../utils/cunstomErrors';
 
 const verifyAuthorization = async (
   req: Request,
-  res: Response,
+  _res: Response,
   next: NextFunction
 ) => {
   try {
     const token = req.headers.authorization.split(' ')[1];
 
     if (!token) {
-      res
-        .status(StatusCodes.UNAUTHORIZED)
-        .json({ message: errorsMessage.NOT_AUTHORIZED });
+      throw new CustomError(
+        StatusCodes.NOT_FOUND,
+        errorsMessage.USER_NOT_FOUND
+      );
     }
 
-    const payload = jwt.verify(token, config.token.secretKey) as {
-      id: number;
-    };
+    const payload = generateToken.verifyAcccessToken(token);
+    req.user = await db.user.findOne({ where: { id: payload.id } });
 
-    const user = await db.user.findOne({ where: { id: payload.id } });
-
-    req.user = user;
-
+    if (!req.user) {
+      throw new CustomError(
+        StatusCodes.NOT_FOUND,
+        errorsMessage.USER_NOT_FOUND
+      );
+    }
     next();
   } catch (err) {
-    if (err instanceof jwt.JsonWebTokenError) {
-      res
-        .status(StatusCodes.UNAUTHORIZED)
-        .json({ message: errorsMessage.INVALID_TOKEN });
-    }
     next(err);
   }
 };

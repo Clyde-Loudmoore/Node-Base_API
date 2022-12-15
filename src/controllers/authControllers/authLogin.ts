@@ -5,7 +5,7 @@ import { StatusCodes } from 'http-status-codes';
 import User from '../../db/entities/User';
 import db from '../../db/index';
 import hashedPassword from '../../utils/hashedPassword';
-import { generateAccessToken } from '../../utils/generateToken';
+import generateToken from '../../utils/generateToken';
 import successMessage from '../../utils/successMessages';
 import errorsMessage from '../../utils/errorsMessages';
 import CustomError from '../../utils/cunstomErrors';
@@ -50,7 +50,7 @@ export const login: HandlerType = async (req, res, next) => {
     }
 
     const matchPassword = await hashedPassword.comparePass(
-      req.body.password,
+      password,
       user.password
     );
 
@@ -61,7 +61,7 @@ export const login: HandlerType = async (req, res, next) => {
       );
     }
 
-    const token = generateAccessToken(user.id);
+    const token = generateToken.generateAccessToken(user.id);
 
     delete user.password;
 

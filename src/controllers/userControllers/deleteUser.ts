@@ -4,6 +4,8 @@ import { StatusCodes } from 'http-status-codes';
 
 import db from '../../db/index';
 import CustomError from '../../utils/cunstomErrors';
+import successMessages from '../../utils/successMessages';
+import errorsMessages from '../../utils/errorsMessages';
 
 type ParamsType = Record<string, never>;
 type BodyType = Record<string, never>;
@@ -24,13 +26,13 @@ export const deleteUser: HandlerType = async (req, res, next) => {
     if (req.user.id !== +req.params.userId) {
       throw new CustomError(
         StatusCodes.FORBIDDEN,
-        'Invalid request, please check entered data'
+        errorsMessages.USER_NOT_FOUND
       );
     }
 
     await db.user.remove(req.user);
 
-    res.sendStatus(StatusCodes.NO_CONTENT);
+    res.status(StatusCodes.OK).json({ message: successMessages.DELETED_USER });
   } catch (err) {
     next(err);
   }

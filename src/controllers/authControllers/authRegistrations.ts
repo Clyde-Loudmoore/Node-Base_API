@@ -4,7 +4,7 @@ import { StatusCodes } from 'http-status-codes';
 
 import User from '../../db/entities/User';
 import db from '../../db/index';
-import { generateAccessToken } from '../../utils/generateToken';
+import generateToken from '../../utils/generateToken';
 import hashedPassword from '../../utils/hashedPassword';
 import errorsMessage from '../../utils/errorsMessages';
 import successMessage from '../../utils/successMessages';
@@ -13,7 +13,7 @@ import CustomError from '../../utils/cunstomErrors';
 type ParamsType = Record<string, never>;
 type BodyType = User;
 type QueryType = Record<string, never>;
-type ResponseType = { message?: string; user?: User; token?: string };
+type ResponseType = { message?: string; newUser?: User; token?: string };
 
 type HandlerType = RequestHandler<
   ParamsType,
@@ -43,11 +43,11 @@ export const register: HandlerType = async (req, res, next) => {
     const newUser = await db.user.save(user);
     delete newUser.password;
 
-    const token = generateAccessToken(user.id);
+    const token = generateToken.generateAccessToken(user.id);
 
     res
       .status(StatusCodes.CREATED)
-      .json({ message: successMessage.REGISTRATION_SUCCESS });
+      .json({ newUser, token, message: successMessage.REGISTRATION_SUCCESS });
   } catch (err) {
     next(err);
   }

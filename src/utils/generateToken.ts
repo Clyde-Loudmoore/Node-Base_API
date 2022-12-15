@@ -1,8 +1,11 @@
+import { StatusCodes } from 'http-status-codes';
 import jwt from 'jsonwebtoken';
 
+import CustomError from './cunstomErrors';
 import config from '../config';
+import errorsMessages from './errorsMessages';
 
-export const generateAccessToken = (id: number) => {
+const generateAccessToken = (id: number) => {
   const payload = {
     id,
   };
@@ -10,3 +13,16 @@ export const generateAccessToken = (id: number) => {
     expiresIn: config.token.expiresIn,
   });
 };
+
+const verifyAcccessToken = (token: string) => {
+  try {
+    const payload = jwt.verify(token, config.token.secretKey) as {
+      id: number;
+    };
+    return payload;
+  } catch (err) {
+    throw new CustomError(StatusCodes.FORBIDDEN, errorsMessages.NOT_AUTHORIZED);
+  }
+};
+
+export default { generateAccessToken, verifyAcccessToken };
