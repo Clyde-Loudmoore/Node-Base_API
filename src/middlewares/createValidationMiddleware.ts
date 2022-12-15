@@ -16,7 +16,7 @@ type SchemaType = {
 };
 
 const createValidationMiddleware = (schema: SchemaType) => {
-  const ValidationMiddleware: Handler = async (req, res, next) => {
+  const validationMiddleware: Handler = async (req, res, next) => {
     try {
       const rootShape: Record<string, yup.AnyObjectSchema> = {};
       Object.entries(schema).forEach(([key, value]) => {
@@ -34,7 +34,7 @@ const createValidationMiddleware = (schema: SchemaType) => {
       next(err);
     }
   };
-  return ValidationMiddleware;
+  return validationMiddleware;
 };
 
 export default createValidationMiddleware;

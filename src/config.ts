@@ -29,6 +29,9 @@ const config = {
     salt: mainConfig.PASSWORD_HASH_SALT,
     type: mainConfig.PASSWORD_HASH_TYPE,
   },
+  server: {
+    internalErrorMessage: mainConfig.SERVER_INTERNAL_ERROR_MESSAGE,
+  },
 };
 
 export default config;

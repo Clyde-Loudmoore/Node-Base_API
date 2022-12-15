@@ -3,23 +3,21 @@ import type { RequestHandler } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
 import type User from '../../db/entities/User';
-import db from '../../db/index';
-import errorsMessage from '../../utils/errorsMessage';
 
-type ResponseType = User[];
-type HandlerType = RequestHandler<ResponseType>;
+type BodyType = Record<string, never>;
+type ParamsType = Record<string, never>;
+type QueryType = Record<string, never>;
+type ResponseType = { user: User };
+type HandlerType = RequestHandler<
+  ParamsType,
+  ResponseType,
+  BodyType,
+  QueryType
+>;
 
 export const getUser: HandlerType = async (req, res, next) => {
   try {
-    const user = await db.user.findOne({ where: { id: req.user.id } });
-
-    if (!user) {
-      res
-        .status(StatusCodes.NOT_FOUND)
-        .json({ message: errorsMessage.USER_NOT_FOUND });
-    }
-
-    return res.json(user);
+    res.status(StatusCodes.OK).json({ user: req.user });
   } catch (err) {
     next(err);
   }

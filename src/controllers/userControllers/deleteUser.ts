@@ -3,8 +3,7 @@ import type { RequestHandler } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
 import db from '../../db/index';
-import successMessage from '../../utils/successMessage';
-import errorsMessage from '../../utils/errorsMessage';
+import CustomError from '../../utils/cunstomErrors';
 
 type ParamsType = Record<string, never>;
 type BodyType = Record<string, never>;
@@ -22,16 +21,16 @@ type HandlerType = RequestHandler<
 
 export const deleteUser: HandlerType = async (req, res, next) => {
   try {
-    const user = await db.user.findOne({ where: { id: req.user.id } });
-
-    if (!user) {
-      res
-        .status(StatusCodes.NOT_FOUND)
-        .json({ message: errorsMessage.USER_NOT_FOUND });
+    if (req.user.id !== +req.params.userId) {
+      throw new CustomError(
+        StatusCodes.FORBIDDEN,
+        'Invalid request, please check entered data'
+      );
     }
 
-    await db.user.remove(user);
-    res.json({ message: successMessage.DELETED_USER });
+    await db.user.remove(req.user);
+
+    res.sendStatus(StatusCodes.NO_CONTENT);
   } catch (err) {
     next(err);
   }

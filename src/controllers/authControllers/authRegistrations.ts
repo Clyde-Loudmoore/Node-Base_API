@@ -3,17 +3,17 @@ import type { RequestHandler } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
 import User from '../../db/entities/User';
-import type UserType from '../../db/entities/User';
 import db from '../../db/index';
 import { generateAccessToken } from '../../utils/generateToken';
 import hashedPassword from '../../utils/hashedPassword';
-import errorsMessage from '../../utils/errorsMessage';
-import successMessage from '../../utils/successMessage';
+import errorsMessage from '../../utils/errorsMessages';
+import successMessage from '../../utils/successMessages';
+import CustomError from '../../utils/cunstomErrors';
 
 type ParamsType = Record<string, never>;
-type BodyType = UserType;
+type BodyType = User;
 type QueryType = Record<string, never>;
-type ResponseType = { message?: string; user?: UserType; token?: string };
+type ResponseType = { message?: string; user?: User; token?: string };
 
 type HandlerType = RequestHandler<
   ParamsType,
@@ -24,13 +24,12 @@ type HandlerType = RequestHandler<
 
 export const register: HandlerType = async (req, res, next) => {
   try {
-    const candidate = await db.user.findOne({
+    const exitingUser = await db.user.findOne({
       where: { email: req.body.email },
     });
-    if (candidate) {
-      throw res
-        .status(StatusCodes.BAD_REQUEST)
-        .json({ message: errorsMessage.EMAIL_USED });
+
+    if (exitingUser) {
+      throw new CustomError(StatusCodes.BAD_REQUEST, errorsMessage.EMAIL_USED);
     }
 
     const hashPassword = await hashedPassword.hashedPass(req.body.password);
@@ -46,11 +45,9 @@ export const register: HandlerType = async (req, res, next) => {
 
     const token = generateAccessToken(user.id);
 
-    res.json({
-      user: newUser,
-      token,
-      message: successMessage.REGISTRATION_SUCCESS,
-    });
+    res
+      .status(StatusCodes.CREATED)
+      .json({ message: successMessage.REGISTRATION_SUCCESS });
   } catch (err) {
     next(err);
   }

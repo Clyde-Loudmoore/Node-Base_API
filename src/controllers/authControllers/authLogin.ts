@@ -1,50 +1,73 @@
 /* eslint-disable no-console */
-import type { Handler } from 'express';
+import type { RequestHandler } from 'express';
+import { StatusCodes } from 'http-status-codes';
 
+import User from '../../db/entities/User';
 import db from '../../db/index';
 import hashedPassword from '../../utils/hashedPassword';
 import { generateAccessToken } from '../../utils/generateToken';
-import { StatusCodes } from 'http-status-codes';
-import successMessage from '../../utils/successMessage';
-import errorsMessage from '../../utils/errorsMessage';
+import successMessage from '../../utils/successMessages';
+import errorsMessage from '../../utils/errorsMessages';
+import CustomError from '../../utils/cunstomErrors';
 
-export const login: Handler = async (req, res, next) => {
+type BodyType = {
+  email: string;
+  password: string;
+};
+
+type ParamsType = Record<string, never>;
+
+type QueryType = Record<string, never>;
+
+type ResponseType = {
+  user: User;
+  token: string;
+  message: string;
+};
+
+type HandlerType = RequestHandler<
+  ParamsType,
+  ResponseType,
+  BodyType,
+  QueryType
+>;
+
+export const login: HandlerType = async (req, res, next) => {
   try {
-    const existingUser = await db.user
+    const { email, password } = req.body;
+
+    const user = await db.user
       .createQueryBuilder('user')
       .addSelect('user.password')
-      .where('email = :email', { email: req.body.email })
+      .where('user.email = :email', { email })
       .getOne();
 
-    if (!existingUser) {
-      res
-        .status(StatusCodes.NOT_FOUND)
-        .json({ message: errorsMessage.USER_NOT_FOUND });
+    if (!user) {
+      throw new CustomError(
+        StatusCodes.BAD_REQUEST,
+        errorsMessage.USER_NOT_FOUND
+      );
     }
 
     const matchPassword = await hashedPassword.comparePass(
       req.body.password,
-      existingUser.password
+      user.password
     );
 
     if (!matchPassword) {
-      res
-        .status(StatusCodes.NOT_FOUND)
-        .json({ message: errorsMessage.WRONG_PASS });
+      throw new CustomError(
+        StatusCodes.BAD_REQUEST,
+        errorsMessage.INCORRECT_DATA
+      );
     }
 
-    const token = generateAccessToken(existingUser.id);
+    const token = generateAccessToken(user.id);
 
-    const userData = {
-      id: existingUser.id,
-      fullName: existingUser.fullName,
-      email: existingUser.email,
-      dateOfBirth: existingUser.dateOfBirth,
-    };
+    delete user.password;
 
-    return res
+    res
       .status(StatusCodes.OK)
-      .json({ userData, token, message: successMessage.LOGIN_SUCCESS });
+      .json({ user, token, message: successMessage.LOGIN_SUCCESS });
   } catch (err) {
     next(err);
   }

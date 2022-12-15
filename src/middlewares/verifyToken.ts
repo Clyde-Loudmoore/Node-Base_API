@@ -4,7 +4,7 @@ import { StatusCodes } from 'http-status-codes';
 
 import config from '../config';
 import db from '../db';
-import errorsMessage from '../utils/errorsMessage';
+import errorsMessage from '../utils/errorsMessages';
 
 const verifyAuthorization = async (
   req: Request,
@@ -12,7 +12,6 @@ const verifyAuthorization = async (
   next: NextFunction
 ) => {
   try {
-    let verifiedToken;
     const token = req.headers.authorization.split(' ')[1];
 
     if (!token) {
@@ -21,11 +20,11 @@ const verifyAuthorization = async (
         .json({ message: errorsMessage.NOT_AUTHORIZED });
     }
 
-    verifiedToken = jwt.verify(token, config.token.secretKey) as {
+    const payload = jwt.verify(token, config.token.secretKey) as {
       id: number;
     };
 
-    const user = await db.user.findOne({ where: { id: verifiedToken.id } });
+    const user = await db.user.findOne({ where: { id: payload.id } });
 
     req.user = user;
 

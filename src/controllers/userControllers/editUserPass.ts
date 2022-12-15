@@ -2,19 +2,21 @@
 import type { RequestHandler } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
-import type UserType from '../../db/entities/User';
 import db from '../../db/index';
 import hashedPassword from '../../utils/hashedPassword';
-import errorsMessage from '../../utils/errorsMessage';
-import successMessage from '../../utils/successMessage';
+import CustomError from '../../utils/cunstomErrors';
+import errorsMessage from '../../utils/errorsMessages';
+import successMessage from '../../utils/successMessages';
 
 type ParamsType = Record<string, never>;
 type QueryType = Record<string, never>;
 type ResponseType = {
   message: string;
-  enteredData?: BodyType;
 };
-type BodyType = UserType;
+type BodyType = {
+  password: string;
+  newPassword: string;
+};
 
 type HandlerType = RequestHandler<
   ParamsType,
@@ -25,34 +27,41 @@ type HandlerType = RequestHandler<
 
 export const editUserPass: HandlerType = async (req, res, next) => {
   try {
+    if (req.user.id !== +req.params.userId) {
+      throw new CustomError(
+        StatusCodes.FORBIDDEN,
+        errorsMessage.INCORRECT_DATA
+      );
+    }
+
+    const { password, newPassword } = req.body;
+
     const existingUser = await db.user
       .createQueryBuilder('user')
       .addSelect('user.password')
-      .where('email = :email', { email: req.body.email })
+      .where('email = :email', { email: req.user.email })
       .getOne();
 
-    if (!existingUser) {
-      res
-        .status(StatusCodes.NOT_FOUND)
-        .json({ message: errorsMessage.USER_NOT_FOUND });
-    }
-
     const matchPassword = await hashedPassword.comparePass(
-      req.body.password,
+      password,
       existingUser.password
     );
 
     if (!matchPassword) {
-      const newPassword = hashedPassword.hashedPass(req.body.password);
-      existingUser.password = (await newPassword).toString();
-    } else {
-      res
-        .status(StatusCodes.BAD_REQUEST)
-        .json({ message: errorsMessage.WRONG_PASS });
+      throw new CustomError(
+        StatusCodes.BAD_REQUEST,
+        errorsMessage.INCORRECT_DATA
+      );
     }
+
+    console.log(newPassword);
+    existingUser.password = await hashedPassword.hashedPass(newPassword);
     await db.user.save(existingUser);
 
-    res.json({ message: successMessage.UPDATE_USER_PASSWORD });
+
+    res
+      .status(StatusCodes.OK)
+      .json({ message: successMessage.UPDATE_USER_PASSWORD });
   } catch (err) {
     next(err);
   }

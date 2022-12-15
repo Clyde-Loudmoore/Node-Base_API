@@ -2,17 +2,17 @@
 import type { RequestHandler } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
-import type UserType from '../../db/entities/User';
+import User from '../../db/entities/User';
 import db from '../../db/index';
-import errorsMessage from '../../utils/errorsMessage';
-import successMessage from '../../utils/successMessage';
+import CustomError from '../../utils/cunstomErrors';
+import successMessages from '../../utils/successMessages';
+import errorsMessages from '../../utils/errorsMessages';
 
 type ParamsType = Record<string, never>;
 type QueryType = Record<string, never>;
 type ResponseType = {
   message: string;
-  enteredData?: BodyType;
-  userInfo?: UserType;
+  updatedUser?: User;
 };
 type BodyType = {
   fullName: string;
@@ -29,21 +29,22 @@ type HandlerType = RequestHandler<
 
 export const editUser: HandlerType = async (req, res, next) => {
   try {
-    const { fullName, email, dateOfBirth } = req.body;
-    const user = await db.user.findOne({ where: { id: req.user.id } });
-
-    if (!user) {
-      res
-        .status(StatusCodes.NOT_FOUND)
-        .json({ message: errorsMessage.USER_NOT_FOUND });
+    if (req.user.id !== +req.params.userId) {
+      throw new CustomError(
+        StatusCodes.FORBIDDEN,
+        errorsMessages.INCORRECT_DATA
+      );
     }
 
-    user.fullName = fullName;
-    user.email = email;
-    user.dateOfBirth = dateOfBirth;
+    req.user.fullName = req.body.fullName;
+    req.user.email = req.body.email;
+    req.user.dateOfBirth = req.body.dateOfBirth;
 
-    await db.user.save(user);
-    return res.json({ message: successMessage.UPDATE_USER });
+    await db.user.save(req.user);
+
+    res
+      .status(StatusCodes.OK)
+      .json({ message: successMessages.UPDATE_USER, updatedUser: req.user });
   } catch (err) {
     next(err);
   }

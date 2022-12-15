@@ -1,6 +1,6 @@
 import express from 'express';
 
-import createValidationMiddleware from '../middlewares/applyValidationScheme';
+import createValidationMiddleware from '../middlewares/createValidationMiddleware';
 import user from '../validationSchemes/user';
 import userControllers from '../controllers/userControllers';
 import verifyAuthorization from '../middlewares/verifyToken';
@@ -9,7 +9,7 @@ const routes = express.Router();
 
 routes.use(verifyAuthorization);
 
-routes.get('/', userControllers.getUser);
+routes.get('/me', userControllers.getUser);
 
 routes.patch(
   '/:userId',
@@ -23,6 +23,10 @@ routes.patch(
   userControllers.editUserPass
 );
 
-routes.delete('/:userId', userControllers.deleteUser);
+routes.delete(
+  '/:userId',
+  createValidationMiddleware(user.deleteUser),
+  userControllers.deleteUser
+);
 
 export default routes;
