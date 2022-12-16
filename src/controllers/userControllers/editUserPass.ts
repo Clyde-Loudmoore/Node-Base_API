@@ -4,7 +4,7 @@ import { StatusCodes } from 'http-status-codes';
 
 import db from '../../db/index';
 import hashedPassword from '../../utils/hashedPassword';
-import CustomError from '../../utils/cunstomErrors';
+import CustomError from '../../utils/customErrors';
 import errorsMessage from '../../utils/errorsMessages';
 import successMessage from '../../utils/successMessages';
 
@@ -54,7 +54,6 @@ export const editUserPass: HandlerType = async (req, res, next) => {
       );
     }
 
-    console.log(newPassword);
     existingUser.password = await hashedPassword.hashedPass(newPassword);
     await db.user.save(existingUser);
 

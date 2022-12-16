@@ -4,7 +4,7 @@ import { StatusCodes } from 'http-status-codes';
 import db from '../db';
 import generateToken from '../utils/generateToken';
 import errorsMessage from '../utils/errorsMessages';
-import CustomError from '../utils/cunstomErrors';
+import CustomError from '../utils/customErrors';
 
 const verifyAuthorization = async (
   req: Request,

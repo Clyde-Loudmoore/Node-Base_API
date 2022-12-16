@@ -1,7 +1,7 @@
 import { StatusCodes } from 'http-status-codes';
 import jwt from 'jsonwebtoken';
 
-import CustomError from './cunstomErrors';
+import CustomError from './customErrors';
 import config from '../config';
 import errorsMessages from './errorsMessages';
 

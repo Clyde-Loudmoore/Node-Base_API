@@ -7,4 +7,5 @@ export default {
   SERVER_ERROR: 'Internal Server Error',
   INVALID_TOKEN: 'Invalid token',
   NOT_REGISTRED: 'User not registered',
+  INCORRECT_PASS: 'Enter a password between 4 and 16 characters long',
 };

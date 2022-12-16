@@ -6,7 +6,7 @@ import connectToDb from './db/connectToDb';
 
 (async () => {
   try {
-    connectToDb();
+    await connectToDb();
     app.listen(config.port);
 
     console.log(successMessage.LISTENING, config.port);

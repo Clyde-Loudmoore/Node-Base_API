@@ -8,7 +8,7 @@ import generateToken from '../../utils/generateToken';
 import hashedPassword from '../../utils/hashedPassword';
 import errorsMessage from '../../utils/errorsMessages';
 import successMessage from '../../utils/successMessages';
-import CustomError from '../../utils/cunstomErrors';
+import CustomError from '../../utils/customErrors';
 
 type ParamsType = Record<string, never>;
 type BodyType = User;
@@ -33,6 +33,9 @@ export const register: HandlerType = async (req, res, next) => {
     }
 
     const hashPassword = await hashedPassword.hashedPass(req.body.password);
+    console.log(req.body.password.length);
+
+
 
     const user = new User();
     user.fullName = req.body.fullName;

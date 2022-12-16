@@ -4,7 +4,7 @@ import { StatusCodes } from 'http-status-codes';
 
 import User from '../../db/entities/User';
 import db from '../../db/index';
-import CustomError from '../../utils/cunstomErrors';
+import CustomError from '../../utils/customErrors';
 import successMessages from '../../utils/successMessages';
 import errorsMessages from '../../utils/errorsMessages';
 

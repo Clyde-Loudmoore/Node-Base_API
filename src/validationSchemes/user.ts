@@ -27,8 +27,6 @@ const registration = {
     password: sharedValidation.requiredPassword,
     dateOfBirth: sharedValidation.dateOfBirth,
   },
-  params: {},
-  query: {},
 };
 
 const login = {
@@ -36,22 +34,17 @@ const login = {
     email: sharedValidation.requiredEmail,
     password: sharedValidation.requiredPassword,
   },
-  params: {},
-  query: {},
 };
 
 const editUser = {
   body: {
     fullName: sharedValidation.fullName,
-
     email: sharedValidation.requiredEmail,
-
     dateOfBirth: sharedValidation.dateOfBirth,
   },
   params: {
     userId: sharedValidation.requiredParamsId,
   },
-  query: {},
 };
 
 const editUserPass = {
@@ -62,15 +55,12 @@ const editUserPass = {
   params: {
     userId: sharedValidation.requiredParamsId,
   },
-  query: {},
 };
 
 const deleteUser = {
-  body: {},
   params: {
     userId: sharedValidation.requiredParamsId,
   },
-  query: {},
 };
 
 export default { registration, login, editUser, editUserPass, deleteUser };

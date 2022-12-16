@@ -3,7 +3,7 @@ import type { RequestHandler } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
 import db from '../../db/index';
-import CustomError from '../../utils/cunstomErrors';
+import CustomError from '../../utils/customErrors';
 import successMessages from '../../utils/successMessages';
 import errorsMessages from '../../utils/errorsMessages';
 
