@@ -1,4 +1,3 @@
-//
 import db from './dataSource';
 import User from './entities/User';
 
