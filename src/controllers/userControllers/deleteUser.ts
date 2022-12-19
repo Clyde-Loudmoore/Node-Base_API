@@ -2,7 +2,7 @@
 import type { RequestHandler } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
-import db from '../../db/index';
+import db from '../../db';
 import CustomError from '../../utils/customErrors';
 import successMessages from '../../utils/successMessages';
 import errorsMessages from '../../utils/errorsMessages';

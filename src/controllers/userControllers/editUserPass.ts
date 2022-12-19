@@ -2,7 +2,7 @@
 import type { RequestHandler } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
-import db from '../../db/index';
+import db from '../../db';
 import hashedPassword from '../../utils/hashedPassword';
 import CustomError from '../../utils/customErrors';
 import errorsMessage from '../../utils/errorsMessages';

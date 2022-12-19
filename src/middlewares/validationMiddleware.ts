@@ -43,7 +43,7 @@ const createValidationMiddleware = (schema: SchemaType) => {
       const invalidFields = compareKeys(schemaKeys, requestKeys)
 
       if (invalidFields.length) {
-        throw new CustomError(StatusCodes.BAD_REQUEST, errorsMessage.ETRA_FIELDS = `Extra fields found ${invalidFields}`);
+        throw new CustomError(StatusCodes.CONFLICT, errorsMessage.ETRA_FIELDS = `Extra fields found ${invalidFields}`);
       }
 
 

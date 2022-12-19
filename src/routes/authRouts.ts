@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/comma-dangle */
 import express from 'express';
 
-import authController from '../controllers/authControllers/index';
+import authController from '../controllers/authControllers';
 import createValidationMiddleware from '../middlewares/validationMiddleware';
 import user from '../validationSchemes/user';
 

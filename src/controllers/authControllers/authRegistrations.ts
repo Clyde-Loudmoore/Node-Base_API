@@ -3,7 +3,7 @@ import type { RequestHandler } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
 import User from '../../db/entities/User';
-import db from '../../db/index';
+import db from '../../db';
 import generateToken from '../../utils/generateToken';
 import hashedPassword from '../../utils/hashedPassword';
 import errorsMessage from '../../utils/errorsMessages';
