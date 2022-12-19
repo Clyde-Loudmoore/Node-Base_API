@@ -16,25 +16,10 @@ type SchemaType = {
   params?: ShapeFieldType;
 };
 
-type ParamsType = {
-  errors?: string[];
-  path?: string;
-};
-
-type ErrorType = {
-  inner?: ParamsType[];
-  errors?: string[];
-};
-
 const createValidationMiddleware = (schema: SchemaType) => {
   const validationMiddleware: Handler = async (req, _res, next) => {
 
     try {
-      // const error: Array<{
-      //   path: string;
-      //   message: string[];
-      //   key: string;
-      // }> = [];
 
       const rootShape: Record<string, yup.AnyObjectSchema> = {};
 
@@ -50,17 +35,12 @@ const createValidationMiddleware = (schema: SchemaType) => {
         ...Object.keys(req.query),
       ];
 
-      console.log(schemaKeys);
-      console.log(requestKeys);
-
       const compareKeys = (schemaKeys: string[], requestKeys: string[]) => {
         return schemaKeys.filter(elem => !requestKeys.includes(elem))
           .concat(requestKeys.filter(elem => !schemaKeys.includes(elem)))
       };
 
       const invalidFields = compareKeys(schemaKeys, requestKeys)
-
-      console.log(invalidFields);
 
       if (invalidFields.length) {
         throw new CustomError(StatusCodes.BAD_REQUEST, errorsMessage.ETRA_FIELDS = `Extra fields found ${invalidFields}`);
