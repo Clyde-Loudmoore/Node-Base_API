@@ -46,6 +46,9 @@ export const editUser: HandlerType = async (req, res, next) => {
       .status(StatusCodes.OK)
       .json({ message: successMessages.UPDATE_USER, updatedUser: req.user });
   } catch (err) {
-    next(err);
+    if (err) {
+      return res.status(StatusCodes.BAD_REQUEST).json({ message: errorsMessages.EMAIL_USED });
+    };
+    next();
   }
 };
