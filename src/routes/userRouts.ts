@@ -1,6 +1,6 @@
 import express from 'express';
 
-import createValidationMiddleware from '../middlewares/createValidationMiddleware';
+import createValidationMiddleware from '../middlewares/validationMiddleware';
 import user from '../validationSchemes/user';
 import userControllers from '../controllers/userControllers';
 import verifyAuthorization from '../middlewares/verifyToken';
