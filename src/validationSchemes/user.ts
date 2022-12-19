@@ -4,11 +4,11 @@ const fullName = yup.string().max(25);
 const dateOfBirth = yup.date();
 
 const requiredEmail = yup
-  .string()
-  .email('Invalid email address')
-  .required('Enter email');
-const requiredPassword = yup.string().min(4).max(16).required();
-const requiredNewPassword = yup.string().min(4).max(16).required();
+  .string().email('Invalid email address')
+  .min(12, 'The minimum email length is 12 characters').max(30, 'The maximum email length is 16 characters').required('Enter email');
+const requiredPassword = yup.string().min(4, 'The minimum password length is 4 characters').max(16, 'The maximum password length is 16 characters').required('Enter password');
+const requiredPasswordLog = yup.string().required('Enter your password');
+const requiredNewPassword = yup.string().min(4, 'The minimum password length is 4 characters').max(16, 'The maximum password length is 16 characters').required('Enter password');
 const requiredParamsId = yup.number().integer().min(1).required();
 
 const sharedValidation = {
@@ -17,6 +17,7 @@ const sharedValidation = {
   requiredEmail,
   requiredPassword,
   requiredNewPassword,
+  requiredPasswordLog,
   dateOfBirth,
 };
 
@@ -32,7 +33,7 @@ const registration = {
 const login = {
   body: {
     email: sharedValidation.requiredEmail,
-    password: sharedValidation.requiredPassword,
+    password: sharedValidation.requiredPasswordLog,
   },
 };
 

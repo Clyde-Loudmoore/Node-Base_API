@@ -1,7 +1,6 @@
 /* eslint-disable no-console */
 import type { RequestHandler } from 'express';
 import { StatusCodes } from 'http-status-codes';
-import * as yup from 'yup';
 
 import User from '../../db/entities/User';
 import db from '../../db/index';
@@ -45,8 +44,8 @@ export const login: HandlerType = async (req, res, next) => {
 
     if (!user) {
       throw new CustomError(
-        StatusCodes.BAD_REQUEST,
-        errorsMessage.USER_NOT_FOUND
+        StatusCodes.NOT_FOUND,
+        errorsMessage.USER_NOT_FOUND + ': ' + errorsMessage.INCORRECT_DATA
       );
     }
     const matchPassword = await hashedPassword.comparePass(

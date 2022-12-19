@@ -33,9 +33,6 @@ export const register: HandlerType = async (req, res, next) => {
     }
 
     const hashPassword = await hashedPassword.hashedPass(req.body.password);
-    console.log(req.body.password.length);
-
-
 
     const user = new User();
     user.fullName = req.body.fullName;
