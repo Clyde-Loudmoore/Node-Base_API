@@ -3,12 +3,10 @@ import * as yup from 'yup';
 const fullName = yup.string().max(25);
 const dateOfBirth = yup.date();
 
-const requiredEmail = yup
-  .string().email('Invalid email address')
-  .min(12, 'The minimum email length is 12 characters').max(30, 'The maximum email length is 16 characters').required('Enter email');
-const requiredPassword = yup.string().min(4, 'The minimum password length is 4 characters').max(16, 'The maximum password length is 16 characters').required('Enter password');
+const requiredEmail = yup.string().email('Invalid email address').required('Enter email');
+const password = yup.string().min(4, 'The minimum password length is 4 characters').max(16, 'The maximum password length is 16 characters');
+const requiredPassword = password.required('Enter password');
 const requiredPasswordLog = yup.string().required('Enter your password');
-const requiredNewPassword = yup.string().min(4, 'The minimum password length is 4 characters').max(16, 'The maximum password length is 16 characters').required('Enter password');
 const requiredParamsId = yup.number().integer().min(1).required();
 
 const sharedValidation = {
@@ -16,7 +14,6 @@ const sharedValidation = {
   fullName,
   requiredEmail,
   requiredPassword,
-  requiredNewPassword,
   requiredPasswordLog,
   dateOfBirth,
 };
@@ -51,7 +48,7 @@ const editUser = {
 const editUserPass = {
   body: {
     password: sharedValidation.requiredPassword,
-    newPassword: sharedValidation.requiredNewPassword,
+    newPassword: sharedValidation.requiredPassword,
   },
   params: {
     userId: sharedValidation.requiredParamsId,
@@ -64,4 +61,10 @@ const deleteUser = {
   },
 };
 
-export default { registration, login, editUser, editUserPass, deleteUser };
+export default {
+  registration,
+  login,
+  editUser,
+  editUserPass,
+  deleteUser,
+};

@@ -8,11 +8,7 @@ import errorsHandler from './middlewares/errorsHandler';
 
 const app = express();
 
-app.use(
-  cors({
-    origin: [config.currentUrl],
-  })
-);
+app.use(cors({ origin: [config.currentUrl] }));
 app.use(express.json());
 app.use('/api', routes);
 

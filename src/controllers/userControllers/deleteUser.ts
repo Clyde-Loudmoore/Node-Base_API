@@ -14,20 +14,12 @@ type ResponseType = {
   message: string;
 };
 
-type HandlerType = RequestHandler<
-  ParamsType,
-  ResponseType,
-  BodyType,
-  QueryType
->;
+type HandlerType = RequestHandler<ParamsType, ResponseType, BodyType, QueryType>;
 
 export const deleteUser: HandlerType = async (req, res, next) => {
   try {
     if (req.user.id !== +req.params.userId) {
-      throw new CustomError(
-        StatusCodes.FORBIDDEN,
-        errorsMessages.USER_NOT_FOUND
-      );
+      throw new CustomError(StatusCodes.FORBIDDEN, errorsMessages.USER_NOT_FOUND);
     }
 
     await db.user.remove(req.user);

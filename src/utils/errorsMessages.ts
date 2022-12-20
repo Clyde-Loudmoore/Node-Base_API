@@ -8,6 +8,7 @@ export default {
   INVALID_TOKEN: 'Invalid token',
   NOT_REGISTRED: 'User not registered',
   INCORRECT_PASS: 'Enter a password between 4 and 16 characters long',
-  ERRORS_STR: '',
-  ETRA_FIELDS: '',
+  errors_str: '',
+  EXTRA_FIELDS: 'Extra fields found',
+  USER_ERRORS: 'Please correct the error',
 };

@@ -18,20 +18,12 @@ type BodyType = {
   newPassword: string;
 };
 
-type HandlerType = RequestHandler<
-  ParamsType,
-  ResponseType,
-  BodyType,
-  QueryType
->;
+type HandlerType = RequestHandler<ParamsType, ResponseType, BodyType, QueryType>;
 
 export const editUserPass: HandlerType = async (req, res, next) => {
   try {
     if (req.user.id !== +req.params.userId) {
-      throw new CustomError(
-        StatusCodes.FORBIDDEN,
-        errorsMessage.INCORRECT_DATA
-      );
+      throw new CustomError(StatusCodes.FORBIDDEN, errorsMessage.INCORRECT_DATA);
     }
 
     const { password, newPassword } = req.body;
@@ -42,25 +34,16 @@ export const editUserPass: HandlerType = async (req, res, next) => {
       .where('email = :email', { email: req.user.email })
       .getOne();
 
-    const matchPassword = await hashedPassword.comparePass(
-      password,
-      existingUser.password
-    );
+    const matchPassword = await hashedPassword.comparePass(password, existingUser.password);
 
     if (!matchPassword) {
-      throw new CustomError(
-        StatusCodes.BAD_REQUEST,
-        errorsMessage.INCORRECT_DATA
-      );
+      throw new CustomError(StatusCodes.BAD_REQUEST, errorsMessage.INCORRECT_DATA);
     }
 
     existingUser.password = await hashedPassword.hashedPass(newPassword);
     await db.user.save(existingUser);
 
-
-    res
-      .status(StatusCodes.OK)
-      .json({ message: successMessage.UPDATE_USER_PASSWORD });
+    res.status(StatusCodes.OK).json({ message: successMessage.UPDATE_USER_PASSWORD });
   } catch (err) {
     next(err);
   }

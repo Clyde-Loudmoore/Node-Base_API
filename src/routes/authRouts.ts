@@ -7,11 +7,7 @@ import user from '../validationSchemes/user';
 
 const routes = express.Router();
 
-routes.post(
-  '/register',
-  createValidationMiddleware(user.registration),
-  authController.register
-);
+routes.post('/register', createValidationMiddleware(user.registration), authController.register);
 routes.post('/login', createValidationMiddleware(user.login), authController.login);
 
 export default routes;

@@ -1,9 +1,9 @@
 class CustomError extends Error {
-
   status: number;
-  message: string;
-  payload?: unknown;
 
+  message: string;
+
+  payload?: unknown;
 
   constructor(status: number, message: string, payload?: unknown) {
     super(message);

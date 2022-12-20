@@ -15,7 +15,7 @@ class User {
   password: string;
 
   @Column({ type: 'date', nullable: true })
-  dateOfBirth: Date;
+  dateOfBirth: Date | string;
 }
 
 export default User;

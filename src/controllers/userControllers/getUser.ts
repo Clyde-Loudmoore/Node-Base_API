@@ -8,12 +8,7 @@ type BodyType = Record<string, never>;
 type ParamsType = Record<string, never>;
 type QueryType = Record<string, never>;
 type ResponseType = { user: User };
-type HandlerType = RequestHandler<
-  ParamsType,
-  ResponseType,
-  BodyType,
-  QueryType
->;
+type HandlerType = RequestHandler<ParamsType, ResponseType, BodyType, QueryType>;
 
 export const getUser: HandlerType = async (req, res, next) => {
   try {

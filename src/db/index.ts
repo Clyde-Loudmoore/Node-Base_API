@@ -1,6 +1,6 @@
-import db from './dataSource';
+import dataSource from './dataSource';
 import User from './entities/User';
 
 export default {
-  user: db.getRepository(User),
+  user: dataSource.getRepository(User),
 };

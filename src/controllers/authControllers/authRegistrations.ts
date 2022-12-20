@@ -15,18 +15,11 @@ type BodyType = User;
 type QueryType = Record<string, never>;
 type ResponseType = { message?: string; newUser?: User; token?: string };
 
-type HandlerType = RequestHandler<
-  ParamsType,
-  ResponseType,
-  BodyType,
-  QueryType
->;
+type HandlerType = RequestHandler<ParamsType, ResponseType, BodyType, QueryType>;
 
 export const register: HandlerType = async (req, res, next) => {
   try {
-    const exitingUser = await db.user.findOne({
-      where: { email: req.body.email },
-    });
+    const exitingUser = await db.user.findOne({ where: { email: req.body.email } });
 
     if (exitingUser) {
       throw new CustomError(StatusCodes.BAD_REQUEST, errorsMessage.EMAIL_USED);
@@ -45,8 +38,7 @@ export const register: HandlerType = async (req, res, next) => {
 
     const token = generateToken.generateAccessToken(user.id);
 
-    res
-      .status(StatusCodes.CREATED)
+    res.status(StatusCodes.CREATED)
       .json({ newUser, token, message: successMessage.REGISTRATION_SUCCESS });
   } catch (err) {
     next(err);

@@ -2,7 +2,7 @@
 import type { RequestHandler } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
-import User from '../../db/entities/User';
+import type User from '../../db/entities/User';
 import db from '../../db';
 import hashedPassword from '../../utils/hashedPassword';
 import generateToken from '../../utils/generateToken';
@@ -10,10 +10,7 @@ import successMessage from '../../utils/successMessages';
 import errorsMessage from '../../utils/errorsMessages';
 import CustomError from '../../utils/customErrors';
 
-type BodyType = {
-  email: string;
-  password: string;
-};
+type BodyType = User;
 
 type ParamsType = Record<string, never>;
 
@@ -25,12 +22,7 @@ type ResponseType = {
   message: string;
 };
 
-type HandlerType = RequestHandler<
-  ParamsType,
-  ResponseType,
-  BodyType,
-  QueryType
->;
+type HandlerType = RequestHandler<ParamsType, ResponseType, BodyType, QueryType>;
 
 export const login: HandlerType = async (req, res, next) => {
   try {
@@ -43,30 +35,19 @@ export const login: HandlerType = async (req, res, next) => {
       .getOne();
 
     if (!user) {
-      throw new CustomError(
-        StatusCodes.NOT_FOUND,
-        errorsMessage.USER_NOT_FOUND + ': ' + errorsMessage.INCORRECT_DATA
-      );
+      throw new CustomError(StatusCodes.NOT_FOUND, `${errorsMessage.USER_NOT_FOUND}: ${errorsMessage.INCORRECT_DATA}`);
     }
-    const matchPassword = await hashedPassword.comparePass(
-      password,
-      user.password
-    );
+    const matchPassword = await hashedPassword.comparePass(password, user.password);
 
     if (!matchPassword) {
-      throw new CustomError(
-        StatusCodes.BAD_REQUEST,
-        errorsMessage.WRONG_PASS
-      );
+      throw new CustomError(StatusCodes.BAD_REQUEST, errorsMessage.WRONG_PASS);
     }
 
     const token = generateToken.generateAccessToken(user.id);
 
     delete user.password;
 
-    res
-      .status(StatusCodes.OK)
-      .json({ user, token, message: successMessage.LOGIN_SUCCESS });
+    res.status(StatusCodes.CREATED).json({ user, token, message: successMessage.LOGIN_SUCCESS });
   } catch (err) {
     next(err);
   }

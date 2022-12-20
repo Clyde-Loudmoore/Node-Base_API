@@ -2,7 +2,7 @@
 import type { RequestHandler } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
-import User from '../../db/entities/User';
+import type User from '../../db/entities/User';
 import db from '../../db';
 import CustomError from '../../utils/customErrors';
 import successMessages from '../../utils/successMessages';
@@ -20,20 +20,12 @@ type BodyType = {
   dateOfBirth: Date;
 };
 
-type HandlerType = RequestHandler<
-  ParamsType,
-  ResponseType,
-  BodyType,
-  QueryType
->;
+type HandlerType = RequestHandler<ParamsType, ResponseType, BodyType, QueryType>;
 
 export const editUser: HandlerType = async (req, res, next) => {
   try {
     if (req.user.id !== +req.params.userId) {
-      throw new CustomError(
-        StatusCodes.FORBIDDEN,
-        errorsMessages.INCORRECT_DATA
-      );
+      throw new CustomError(StatusCodes.FORBIDDEN, errorsMessages.INCORRECT_DATA);
     }
 
     req.user.fullName = req.body.fullName;
@@ -42,13 +34,12 @@ export const editUser: HandlerType = async (req, res, next) => {
 
     await db.user.save(req.user);
 
-    res
-      .status(StatusCodes.OK)
+    res.status(StatusCodes.OK)
       .json({ message: successMessages.UPDATE_USER, updatedUser: req.user });
   } catch (err) {
     if (err) {
       return res.status(StatusCodes.BAD_REQUEST).json({ message: errorsMessages.EMAIL_USED });
-    };
+    }
     next();
   }
 };
